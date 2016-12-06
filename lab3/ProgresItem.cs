@@ -16,13 +16,13 @@ using iTextSharp.text;
 using iTextSharp.text.pdf;
 using System.Data.OleDb;
 
-
 namespace lab3
 {
     class ProgresItem
     {
         static int AllPages;
         static int CurrentPages;
+        static string path;
         int num;
         int startNum;
         int endNum;
@@ -110,10 +110,17 @@ namespace lab3
                 return;
             }
         }
-        public void Start()
+        public string Path
         {
-            
+            set { path = value; }
+        }
+        public void Start()
+        {           
             StartButton.PerformClick();
+        }
+        public void Stop()
+        {
+            StopButton.PerformClick();
         }
         void PageDownloadFromTo(object data)
         {
@@ -172,6 +179,9 @@ namespace lab3
                 PR = new Paragraph("Page #" + curPage.ToString(), font3);
                 PR.Alignment = Element.ALIGN_CENTER;
                 doc.Add(PR);
+                PR = new Paragraph("\n", font3);
+                PR.Alignment = Element.ALIGN_CENTER;
+                doc.Add(PR);
 
                 PdfPTable table = new PdfPTable(3);
                 table.SetWidths(new float[] { 2f, 4f, 2f });
@@ -204,14 +214,15 @@ namespace lab3
             catch (Exception ex)
             {
                 ToLog(ex.Source ,ex.Message);
-                //MessageBox.Show(ex.ToString());
             }
         }
+
         public void SetCount(int pageCountGeneral)
         {
             AllPages = pageCountGeneral;
             CurrentPages = 0;
         }
+
         public ProgresItem(int index, RichTextBox Output, ProgressBar generalProgress, Label generalLabel, string url)
         {
             num = index;
@@ -254,8 +265,7 @@ namespace lab3
                         MyThread.Resume();
                 }
                 else
-                {
-                    
+                {                    
                     int[] data = new int[2];
                     Dead = false;
                     startNum = Convert.ToInt32(StartPage.Text);
@@ -290,7 +300,6 @@ namespace lab3
                 if (MyThread != null)
                 {
                     Dead = true;
-                    //MyThread.Abort("Stop");
                 }
             };
             PauseButton = new Button()
@@ -333,6 +342,7 @@ namespace lab3
                 Value = 0
         };
         }
+
         public List<Control> Controls
         {
             get

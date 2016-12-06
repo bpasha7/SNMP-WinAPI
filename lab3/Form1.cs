@@ -77,36 +77,6 @@ namespace lab3
             }
         }
 
-        /*  //
-          void parseAndUpdateRtb(string uri)
-          {
-              try
-              {
-                  HttpClient client = new HttpClient();
-                  Task<HttpResponseMessage> task = client.GetAsync(uri);
-                  string Txt = task.Result.Content.ReadAsStringAsync().Result;
-                  int startTable = Txt.IndexOf("<table>");
-                  int endTable = Txt.IndexOf("</table>");
-                  Txt = Txt.Remove(endTable);
-                  Txt = Txt.Remove(0, startTable);
-                  Txt = Txt.Replace("<tr>", "");
-                  Txt = Txt.Replace("</tr>", "");
-                  Txt = Txt.Replace("<td>", "");
-                  Txt = Txt.Replace("</td>", "");
-                  Txt = Txt.Replace("<wbr>", "");
-                  Txt = Txt.Replace("</wbr>", "");
-                  Txt = Txt.Replace("<table>", "");
-                  Txt = Txt.Replace("<tbody>", "");
-                  Txt = Txt.Replace("</tbody>", "");
-                  Txt = Txt.Replace("HOST-RESOURCES-MIB::hr", "\n");
-                  richTextBox1.Text += Txt;
-              }
-              catch (Exception ex)
-              {
-                  MessageBox.Show(ex.ToString());
-              }
-          }
-          */
         //захватываем страницу и обновляем интерфейс для дальнейшей работы приложения
         private void button1_Click(object sender, EventArgs e)
         {
@@ -154,7 +124,8 @@ namespace lab3
             PI.Add(new ProgresItem(PI.Count+1, richTextBox1, progressBar1, PagesLabel, URL.Text));
             PI[0].SetCount(pageCount);
             PI[0].Connection = myAccessConn;
-            for(int i =0; i < PI[0].Controls.Count; i++ )
+            PI[0].Path = System.IO.Directory.GetCurrentDirectory();
+            for (int i =0; i < PI[0].Controls.Count; i++ )
                 this.panel1.Controls.Add(PI[PI.Count -1].Controls[i]);
             button5.Enabled = true;
             ToLog("Adding thread", string.Format("Thread #{0} just have added", PI.Count));
