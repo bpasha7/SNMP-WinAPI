@@ -26,9 +26,31 @@ namespace lab3
         //строка соединения
         string strAccessConn = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=lab.mdb";
         OleDbConnection myAccessConn;
+        Thread MyThread;
         public Form1()
         {
             InitializeComponent();
+        }
+        void CheckingThreads()
+        {
+            while (true)
+            {
+                for (int i = 0; i < PI.Count; i++)
+                {
+                    string[] res = PI[i].Result();
+                    if (res[0] == null)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        string strAccessInsert = string.Format("INSERT INTO Log(Tname, Tpage, Ttime, Tdate) VALUES(\"{0}\",\"{1}\",\"{2}\",\"{3}\")", res[0], res[1], res[2], res[3]);
+                        OleDbCommand cmd = new OleDbCommand(strAccessInsert, myAccessConn);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+                MyThread.Join(500);
+            }
         }
         //Функция для ведения лога
         void ToLog(string name, string txt)
@@ -142,6 +164,8 @@ namespace lab3
                     item.Start();
                 }
                 ToLog("Starting threads", string.Format("Starting is successfull"));
+                MyThread = new Thread(CheckingThreads);
+                MyThread.Start();
             }
             catch(Exception ex)
             {
@@ -159,17 +183,20 @@ namespace lab3
         //Открытие лога при попадание на вкладу "Log"
                 private void tabPage3_Enter(object sender, EventArgs e)
         {
-            OleDbCommand cmd = new OleDbCommand("Select * from Events", myAccessConn);
+            OleDbCommand cmd = new OleDbCommand("Select * from Log", myAccessConn);
             OleDbDataAdapter myDataAdapter = new OleDbDataAdapter(cmd);
 
             DataSet ds = new DataSet();
             myDataAdapter.Fill(ds);
             ds.Tables[0].Columns[1].ColumnName = "Name";
-            ds.Tables[0].Columns[2].ColumnName = "Message";
-            ds.Tables[0].Columns[3].ColumnName = "Date";
+            ds.Tables[0].Columns[2].ColumnName = "Pages";
+            ds.Tables[0].Columns[3].ColumnName = "Time";
+            ds.Tables[0].Columns[4].ColumnName = "Date";
             dataGridView1.DataSource = ds.Tables[0];
             dataGridView1.Columns[1].Width = 120;
-            dataGridView1.Columns[2].Width = 240;
+            dataGridView1.Columns[2].Width = 50;
+            dataGridView1.Columns[3].Width = 100;
+            dataGridView1.Columns[3].Width = 150;
             dataGridView1.Columns[0].Visible = false;
 
         }

@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Runtime;
 using System.IO;
+using System.Diagnostics;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using System.Data.OleDb;
@@ -24,6 +25,7 @@ namespace lab3
         static int CurrentPages;
         static string path;
         int num;
+        string elapsedTime;
         int startNum;
         int endNum;
         string URL;
@@ -120,13 +122,29 @@ namespace lab3
         }
         public void Stop()
         {
-            StopButton.PerformClick();
+            StopButton.PerformClick();          
+        }
+        public string [] Result()
+        {
+                string[] res = new string[4];
+                //[0] = "";
+                if (MyThread.ThreadState == System.Threading.ThreadState.Stopped && !Dead)
+                {
+                    
+                    res[0] = "Thread #" + num.ToString();
+                    res[1] = (endNum - startNum + 1).ToString();
+                    res[2] = elapsedTime;
+                    res[3] = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
+                    Dead = true;
+                }
+            return res;
         }
         void PageDownloadFromTo(object data)
         {
             int PageFrom = ((int[])data)[0];
             int PageTo = ((int[])data)[1];
-
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
             for (int i = PageFrom; i <= PageTo && !Dead; i++)
             {
                 string uri = URL + "&page=" + i.ToString();
@@ -136,6 +154,14 @@ namespace lab3
                 IncrementGeneralLabel(CurrentPages, AllPages);
                 IncrementProgressLabel(i - PageFrom + 1 , PageTo - PageFrom + 1);
             }
+            stopWatch.Stop();
+            // Get the elapsed time as a TimeSpan value.
+            TimeSpan ts = stopWatch.Elapsed;
+
+            // Format and display the TimeSpan value.
+            elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                ts.Hours, ts.Minutes, ts.Seconds,
+                ts.Milliseconds / 10);
         }
         void parseAndUpdateRtb(string uri, int curPage)
         {
@@ -261,7 +287,7 @@ namespace lab3
             {
                 if (MyThread != null && !Dead)
                 {
-                    if (MyThread.ThreadState == ThreadState.Suspended)
+                    if (MyThread.ThreadState == System.Threading.ThreadState.Suspended)
                         MyThread.Resume();
                 }
                 else
